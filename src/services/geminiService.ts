@@ -1,6 +1,11 @@
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 
-export async function convertDesignToCode(base64Image: string, mimeType: string, requirements?: string): Promise<string> {
+export async function convertDesignToCode(
+  base64Image: string, 
+  mimeType: string, 
+  requirements?: string,
+  previousCode?: string
+): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
   
   if (!apiKey || apiKey === "MY_GEMINI_API_KEY" || apiKey === "" || apiKey === "undefined") {
@@ -13,7 +18,21 @@ export async function convertDesignToCode(base64Image: string, mimeType: string,
   // Use gemini-3-flash-preview for speed and multimodal support
   const model = "gemini-3-flash-preview";
   
-  const prompt = `
+  const prompt = previousCode ? `
+    You are a world-class frontend engineer. 
+    I have previously generated some code from a design screenshot, and now I want to make some changes.
+    
+    PREVIOUS CODE:
+    ${previousCode}
+
+    NEW USER REQUIREMENTS:
+    ${requirements || 'Please refine the code based on the original design.'}
+
+    Instructions:
+    1. Modify the existing code to fulfill the new requirements.
+    2. Maintain the overall structure and design of the original screenshot.
+    3. Return ONLY the updated HTML code. Do not include any explanations or markdown formatting.
+  ` : `
     You are a world-class frontend engineer. 
     Convert this design screenshot into a single-file HTML document.
     

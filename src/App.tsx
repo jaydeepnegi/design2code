@@ -61,7 +61,7 @@ export default function App() {
     setIsGenerating(true);
     setError(null);
     try {
-      const code = await convertDesignToCode(image, mimeType, requirements);
+      const code = await convertDesignToCode(image, mimeType, requirements, generatedCode || undefined);
       setGeneratedCode(code);
       setActiveTab('preview');
     } catch (err) {
@@ -180,21 +180,36 @@ export default function App() {
                 w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-3 transition-all
                 ${!image || isGenerating 
                   ? 'bg-white/5 text-white/20 cursor-not-allowed' 
-                  : 'bg-orange-500 text-black hover:bg-orange-400 active:scale-[0.98]'}
+                  : generatedCode 
+                    ? 'bg-orange-500/20 text-orange-500 border border-orange-500/30 hover:bg-orange-500/30'
+                    : 'bg-orange-500 text-black hover:bg-orange-400'}
+                active:scale-[0.98]
               `}
             >
               {isGenerating ? (
                 <>
                   <RefreshCw className="w-5 h-5 animate-spin" />
-                  Analyzing Design...
+                  {generatedCode ? 'Updating Code...' : 'Analyzing Design...'}
                 </>
               ) : (
                 <>
-                  <Sparkles className="w-5 h-5" />
-                  Generate Code
+                  {generatedCode ? <RefreshCw className="w-5 h-5" /> : <Sparkles className="w-5 h-5" />}
+                  {generatedCode ? 'Update with Requirements' : 'Generate Code'}
                 </>
               )}
             </button>
+
+            {generatedCode && (
+              <button
+                onClick={() => {
+                  setGeneratedCode(null);
+                  setRequirements('');
+                }}
+                className="w-full py-3 rounded-xl font-medium text-white/40 hover:text-white/60 transition-colors text-sm"
+              >
+                Start Over / New Design
+              </button>
+            )}
 
             {error && (
               <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-xl text-red-500 text-sm">
