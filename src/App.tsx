@@ -30,6 +30,7 @@ export default function App() {
   const [viewport, setViewport] = useState<'mobile' | 'desktop'>('desktop');
   const [copied, setCopied] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [requirements, setRequirements] = useState<string>('');
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const file = acceptedFiles[0];
@@ -60,7 +61,7 @@ export default function App() {
     setIsGenerating(true);
     setError(null);
     try {
-      const code = await convertDesignToCode(image, mimeType);
+      const code = await convertDesignToCode(image, mimeType, requirements);
       setGeneratedCode(code);
       setActiveTab('preview');
     } catch (err) {
@@ -158,6 +159,18 @@ export default function App() {
                   </div>
                 </>
               )}
+            </div>
+
+            <div className="space-y-4">
+              <label className="block text-sm font-medium text-white/60">
+                Custom Requirements (Optional)
+              </label>
+              <textarea
+                value={requirements}
+                onChange={(e) => setRequirements(e.target.value)}
+                placeholder="e.g., 'Use custom CSS instead of Tailwind', 'Make the buttons rounded', 'Add a dark mode toggle'..."
+                className="w-full h-32 bg-white/5 border border-white/10 rounded-xl p-4 text-sm focus:outline-none focus:border-orange-500/50 transition-colors resize-none custom-scrollbar"
+              />
             </div>
 
             <button

@@ -1,10 +1,10 @@
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 
-export async function convertDesignToCode(base64Image: string, mimeType: string): Promise<string> {
+export async function convertDesignToCode(base64Image: string, mimeType: string, requirements?: string): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
   
   if (!apiKey || apiKey === "MY_GEMINI_API_KEY" || apiKey === "" || apiKey === "undefined") {
-    throw new Error("Gemini API key is not configured. Please ensure you have added 'MY_GEMINI_KEY' to your environment variables (in Vercel settings or AI Studio secrets) and REFRESH the page.");
+    throw new Error("Gemini API key is not configured. Please ensure you have added 'MY_GEMINI_KEY' to your environment variables (in Vercel settings or AI Studio secrets). IMPORTANT: After adding a variable in Vercel, you MUST trigger a NEW DEPLOYMENT for the changes to take effect.");
   }
 
   // Initialize inside the function to ensure the most up-to-date API key is used
@@ -17,8 +17,14 @@ export async function convertDesignToCode(base64Image: string, mimeType: string)
     You are a world-class frontend engineer. 
     Convert this design screenshot into a single-file HTML document.
     
-    Requirements:
-    1. Use Tailwind CSS (via CDN: <script src="https://cdn.tailwindcss.com"></script>) for all styling.
+    ${requirements ? `USER SPECIFIC REQUIREMENTS:
+    ${requirements}
+    ` : ''}
+
+    General Requirements:
+    1. ${requirements?.toLowerCase().includes('custom css') || requirements?.toLowerCase().includes('no tailwind') 
+        ? 'Use standard CSS inside a <style> tag for all styling. DO NOT use Tailwind CSS.' 
+        : 'Use Tailwind CSS (via CDN: <script src="https://cdn.tailwindcss.com"></script>) for all styling.'}
     2. Ensure the design is fully responsive (mobile, tablet, desktop).
     3. Use Lucide icons (via CDN if possible, or SVG) or standard emojis if needed.
     4. Include any necessary JavaScript for basic interactivity (e.g., mobile menu toggles, tab switching).
