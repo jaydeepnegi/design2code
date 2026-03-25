@@ -1,8 +1,16 @@
 import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || "" });
-
 export async function convertDesignToCode(base64Image: string, mimeType: string): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  
+  if (!apiKey || apiKey === "MY_GEMINI_API_KEY") {
+    throw new Error("Gemini API key is not configured. Please add it to your secrets.");
+  }
+
+  // Initialize inside the function to ensure the most up-to-date API key is used
+  const ai = new GoogleGenAI({ apiKey });
+  
+  // Use gemini-3-flash-preview for speed and multimodal support
   const model = "gemini-3-flash-preview";
   
   const prompt = `
@@ -19,9 +27,11 @@ export async function convertDesignToCode(base64Image: string, mimeType: string)
     7. Return ONLY the HTML code. Do not include any explanations or markdown formatting like \`\`\`html.
   `;
 
+  const base64Data = base64Image.includes(",") ? base64Image.split(",")[1] : base64Image;
+
   const imagePart = {
     inlineData: {
-      data: base64Image.split(",")[1], // Remove the data:image/png;base64, prefix
+      data: base64Data,
       mimeType: mimeType,
     },
   };
@@ -33,17 +43,33 @@ export async function convertDesignToCode(base64Image: string, mimeType: string)
   try {
     const response: GenerateContentResponse = await ai.models.generateContent({
       model: model,
-      contents: { parts: [imagePart, textPart] },
+      contents: [{ parts: [imagePart, textPart] }],
     });
 
     let code = response.text || "";
     
-    // Clean up markdown if the model ignored the "ONLY code" instruction
-    code = code.replace(/^```html\n/, "").replace(/\n```$/, "").trim();
+    // Improved cleanup to handle various markdown code block formats
+    code = code.replace(/```html/g, "")
+               .replace(/```/g, "")
+               .trim();
+    
+    if (!code) {
+      throw new Error("The model returned an empty response.");
+    }
     
     return code;
-  } catch (error) {
-    console.error("Error converting design:", error);
-    throw new Error("Failed to convert design. Please try again.");
+  } catch (error: any) {
+    console.error("Gemini API Error:", error);
+    
+    // Provide more specific error messages if possible
+    if (error.message?.includes("API key not valid")) {
+      throw new Error("Invalid API key. Please check your settings.");
+    }
+    
+    if (error.message?.includes("User location is not supported")) {
+      throw new Error("The Gemini API is not available in your current location.");
+    }
+    
+    throw new Error(`Failed to convert design: ${error.message || "Unknown error"}. Please try again.`);
   }
 }
