@@ -3,8 +3,8 @@ import { GoogleGenAI, GenerateContentResponse } from "@google/genai";
 export async function convertDesignToCode(base64Image: string, mimeType: string): Promise<string> {
   const apiKey = process.env.GEMINI_API_KEY;
   
-  if (!apiKey || apiKey === "MY_GEMINI_API_KEY" || apiKey === "undefined") {
-    throw new Error("Gemini API key is not configured. Please ensure you have added 'MY_GEMINI_KEY' to your secrets.");
+  if (!apiKey || apiKey === "MY_GEMINI_API_KEY" || apiKey === "" || apiKey === "undefined") {
+    throw new Error("Gemini API key is not configured. Please ensure you have added 'MY_GEMINI_KEY' to your secrets and REFRESH the page.");
   }
 
   // Initialize inside the function to ensure the most up-to-date API key is used
