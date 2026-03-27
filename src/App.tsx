@@ -353,7 +353,7 @@ export default function App() {
                         <Sparkles className="w-8 h-8 text-orange-500 animate-pulse" />
                       </div>
                     </div>
-                    <p className="text-lg font-medium text-white animate-pulse">Gemini is coding...</p>
+                    <p className="text-lg font-medium text-white animate-pulse"> </coding...</> </p>
                     <p className="text-sm text-white/40 mt-2">Analyzing layout, styles, and assets</p>
                   </div>
                 )}
@@ -370,13 +370,9 @@ export default function App() {
             <span className="font-bold">VisionCode</span>
           </div>
           <p className="text-white/40 text-sm">
-            © 2026 VisionCode AI. Powered by Google Gemini.
+            © 2026 <Design to CODE </> .
           </p>
-          <div className="flex items-center gap-6">
-            <a href="#" className="text-sm text-white/40 hover:text-white transition-colors">Privacy</a>
-            <a href="#" className="text-sm text-white/40 hover:text-white transition-colors">Terms</a>
-            <a href="#" className="text-sm text-white/40 hover:text-white transition-colors">Twitter</a>
-          </div>
+         
         </div>
       </footer>
 
